@@ -6,12 +6,14 @@ import lt.techin.movie_studio.dto.ActorRequestDTO;
 import lt.techin.movie_studio.dto.ActorResponseDTO;
 import lt.techin.movie_studio.model.Actor;
 import lt.techin.movie_studio.service.ActorService;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -43,5 +45,28 @@ public class ActorController {
                     .buildAndExpand(actor.getId())
                     .toUri())
             .body(savedActorDTO);
+  }
+
+  @PutMapping("/actors/{id}")
+  public ResponseEntity<ActorResponseDTO> updateActor(@Valid @RequestBody ActorRequestDTO actorRequestDTO, @PathVariable long id) {
+
+    Optional<Actor> actor = actorService.getActorById(id);
+    if (actor.isEmpty()) {
+      return ResponseEntity.notFound().build();
+    }
+
+
+  }
+
+  @DeleteMapping("/actors/{id}")
+  public ResponseEntity<?> deleteActor(@PathVariable long id) {
+
+    if (!actorService.actorExistsById(id)) {
+      return ResponseEntity.badRequest().body("Actor does not exist");
+    }
+
+    actorService.deleteActorById(id);
+
+    return ResponseEntity.noContent().build();
   }
 }
